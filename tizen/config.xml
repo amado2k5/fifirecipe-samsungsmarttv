@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Tizen web app configuration for Samsung Smart TV
+  (developer.samsung.com › Smart TV › Configuring Web Applications).
+
+  version  x.y.z (x,y 0-255, z 0-65535) — scripts/package-wgt.mjs stamps the
+           package.json version in; bump it for every Seller Office upload.
+  package  exactly 10 alphanumeric characters; app id = package.name.
+  required_version 6.5 = 2022 TVs (Chromium M85), the oldest engine the build
+           targets (vite.config.ts TV_BROWSERS).
+-->
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="https://samsungsmarttv.fifi.cooking/app"
+        version="@VERSION@"
+        viewmodes="maximized">
+  <tizen:application id="FiFiCookTV.FifiRecipes" package="FiFiCookTV" required_version="6.5"/>
+  <tizen:profile name="tv"/>
+  <feature name="http://tizen.org/feature/screen.size.all"/>
+
+  <name>FiFi Recipes</name>
+  <description>Dr. Fatma's Egyptian family recipes in 24 languages, with a Kids cooking mode.</description>
+  <author href="https://samsungsmarttv.fifi.cooking" email="samsungtv@fifi.cooking">Dr. Fatma / FiFi</author>
+  <icon src="icon.png"/>
+  <content src="index.html"/>
+
+  <!-- Network access. The app itself only talks to fifi.cooking (recipes,
+       images), Google Fonts and samsungsmarttv.fifi.cooking (YouTube relay),
+       but Tizen's access policy also governs requests made inside the
+       embedded YouTube player, which spans many Google hosts
+       (youtube.com, googlevideo.com, ytimg.com, ggpht.com, gstatic.com …). -->
+  <access origin="*" subdomains="true"/>
+
+  <tizen:privilege name="http://tizen.org/privilege/internet"/>
+  <!-- Registers the remote's media keys (Play/Pause/Stop). -->
+  <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+
+  <!-- Remote-only D-pad UI: no pointer, landscape, no background running. -->
+  <tizen:setting screen-orientation="landscape"
+                 context-menu="disable"
+                 background-support="disable"
+                 encryption="disable"
+                 install-location="auto"
+                 hwkey-event="enable"
+                 pointing-device-support="disable"/>
+</widget>

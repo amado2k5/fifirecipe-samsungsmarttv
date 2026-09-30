@@ -1,0 +1,130 @@
+name: Build, test & deploy
+
+# Every PR and every merge to main:
+#   1. type-check + production build (Chromium 85 / Tizen 6.5 target)
+#   2. remote-control smoke test on a real Chromium 85 — the web engine of
+#      2022 Samsung TVs, the oldest the app supports
+#   3. signed Tizen package (.wgt) — with the Samsung certificates when the
+#      repository secrets exist, otherwise a development certificate
+#   4. (main only) deploy site + web build + YouTube relay to
+#      https://samsungsmarttv.fifi.cooking via GitHub Pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Chromium snapshot 782790 = 85.0.4183 (Samsung 2022 TVs run M85).
+  CHROMIUM_M85: https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/782790/chrome-linux.zip
+  TIZEN_CLI_URL: https://download.tizen.org/sdk/Installer/tizen-studio_6.1/web-cli_Tizen_Studio_6.1_ubuntu-64.bin
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type-check
+        run: npm run lint
+      - name: Build (Tizen / Chromium 85 target)
+        run: npm run build
+
+      - name: Chromium 85 (2022 Samsung TV engine)
+        uses: actions/cache@v6
+        with:
+          path: ~/chromium-m85
+          key: chromium-m85-782790
+      - name: Download Chromium 85 if not cached
+        run: |
+          if [ ! -x ~/chromium-m85/chrome-linux/chrome ]; then
+            mkdir -p ~/chromium-m85 && curl -sSL "$CHROMIUM_M85" -o /tmp/chrome.zip
+            unzip -q /tmp/chrome.zip -d ~/chromium-m85
+          fi
+          sudo apt-get update -qq && sudo apt-get install -y -qq libgbm1 libnss3 libxss1 libasound2t64 fonts-noto-core fonts-noto-cjk > /dev/null
+      - name: Remote-control smoke test on Chromium 85
+        run: CHROME="$HOME/chromium-m85/chrome-linux/chrome --no-sandbox" node scripts/tv-smoke.mjs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: tv-smoke-screenshots
+          path: build/smoke/
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Tizen Studio CLI
+        uses: actions/cache@v6
+        with:
+          path: ~/tizen-studio
+          key: tizen-web-cli-6.1
+      - name: Install Tizen CLI if not cached
+        run: |
+          if [ ! -x ~/tizen-studio/tools/ide/bin/tizen ]; then
+            curl -sSL "$TIZEN_CLI_URL" -o /tmp/web-cli.bin && chmod +x /tmp/web-cli.bin
+            /tmp/web-cli.bin --accept-license "$HOME/tizen-studio"
+          fi
+          echo "$HOME/tizen-studio/tools/ide/bin" >> "$GITHUB_PATH"
+      - name: Signing profile
+        env:
+          SAMSUNG_AUTHOR_P12_BASE64: ${{ secrets.SAMSUNG_AUTHOR_P12_BASE64 }}
+          SAMSUNG_DISTRIBUTOR_P12_BASE64: ${{ secrets.SAMSUNG_DISTRIBUTOR_P12_BASE64 }}
+          SAMSUNG_CERT_PASSWORD: ${{ secrets.SAMSUNG_CERT_PASSWORD }}
+          SAMSUNG_DISTRIBUTOR_PASSWORD: ${{ secrets.SAMSUNG_DISTRIBUTOR_PASSWORD }}
+        run: |
+          if [ -n "$SAMSUNG_AUTHOR_P12_BASE64" ] && [ -n "$SAMSUNG_DISTRIBUTOR_P12_BASE64" ]; then
+            mkdir -p certs
+            echo "$SAMSUNG_AUTHOR_P12_BASE64" | base64 -d > certs/author.p12
+            echo "$SAMSUNG_DISTRIBUTOR_P12_BASE64" | base64 -d > certs/distributor.p12
+            SAMSUNG_AUTHOR_P12=certs/author.p12 SAMSUNG_DISTRIBUTOR_P12=certs/distributor.p12 \
+              TIZEN_CERT_PASSWORD="$SAMSUNG_CERT_PASSWORD" \
+              TIZEN_DISTRIBUTOR_PASSWORD="${SAMSUNG_DISTRIBUTOR_PASSWORD:-$SAMSUNG_CERT_PASSWORD}" \
+              scripts/tizen-profile.sh
+            echo "WGT_KIND=samsung" >> "$GITHUB_ENV"
+          else
+            echo "::notice::Samsung certificate secrets not set — signing with a development certificate (emulator only)."
+            TIZEN_CERT_PASSWORD="dev-${{ github.run_id }}" scripts/tizen-profile.sh --dev
+            echo "WGT_KIND=dev" >> "$GITHUB_ENV"
+          fi
+      - name: Package .wgt
+        run: npm run package
+      - uses: actions/upload-artifact@v7
+        with:
+          name: fifi-recipes-wgt-${{ env.WGT_KIND }}
+          path: build/*.wgt
+
+      - name: Assemble Pages site
+        run: npm run package:site
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/site
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

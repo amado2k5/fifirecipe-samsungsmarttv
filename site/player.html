@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>FiFi Recipes player</title>
+<!--
+  YouTube relay for the FiFi Recipes Samsung TV app.
+
+  Packaged Tizen apps run from file://, and YouTube refuses to play embeds
+  without an HTTP referrer (player errors 152/153). The TV app therefore
+  iframes this page, served over HTTPS from samsungsmarttv.fifi.cooking,
+  which embeds the privacy-enhanced youtube-nocookie player via the IFrame
+  API and accepts commands from the app with postMessage:
+      { fifi: 'play' | 'pause' | 'toggle' | 'stop' }
+  It reports { fifi: 'error', code } back if the video cannot be played.
+  Only messages from the packaged app (origin "null"/file) or this site are
+  honoured; the video id must look like a YouTube id.
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #player, iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+</style>
+</head>
+<body>
+<div id="player"></div>
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var id = params.get('v') || '';
+    var hl = (params.get('hl') || 'en').slice(0, 5);
+    var parentWin = window.parent;
+    function tell(msg) { try { parentWin.postMessage(msg, '*'); } catch (e) {} }
+    if (!/^[A-Za-z0-9_-]{6,20}$/.test(id)) { tell({ fifi: 'error', code: 'bad-id' }); return; }
+
+    var player = null, ready = false, playing = true;
+    window.onYouTubeIframeAPIReady = function () {
+      player = new YT.Player('player', {
+        host: 'https://www.youtube-nocookie.com',
+        videoId: id,
+        playerVars: { autoplay: 1, rel: 0, playsinline: 1, controls: 1, hl: hl, iv_load_policy: 3, origin: location.origin },
+        events: {
+          onReady: function (e) { ready = true; e.target.playVideo(); },
+          onStateChange: function (e) { playing = e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING; },
+          onError: function (e) { tell({ fifi: 'error', code: e.data }); }
+        }
+      });
+    };
+    window.addEventListener('message', function (e) {
+      var allowed = e.origin === 'null' || e.origin.indexOf('file:') === 0 || e.origin === location.origin;
+      if (!allowed || !e.data || typeof e.data.fifi !== 'string' || !ready) return;
+      switch (e.data.fifi) {
+        case 'play': player.playVideo(); break;
+        case 'pause': case 'stop': player.pauseVideo(); break;
+        case 'toggle': playing ? player.pauseVideo() : player.playVideo(); break;
+      }
+    });
+    var s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    s.onerror = function () { tell({ fifi: 'error', code: 'api' }); };
+    document.head.appendChild(s);
+  })();
+</script>
+</body>
+</html>
