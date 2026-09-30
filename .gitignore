@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+*.wgt
+*.local
+.DS_Store
+.playwright-mcp/
+# Tizen/Samsung signing certificates and passwords — never commit
+*.p12
+certs/
+.tizen-cert.env
