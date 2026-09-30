@@ -38,6 +38,8 @@ CHROME="arch -x86_64 /path/to/Chromium.app/Contents/MacOS/Chromium" node scripts
 Loads `dist/index.html` from `file://` like the packaged app, with a mock
 `tizen` runtime, and drives it with remote keyCodes (Return = 10009).
 Screenshots in `build/smoke/`. CI runs the same test on Linux.
+Add `TV_SMOKE_VIDEO=1` to also play a recipe video through the live YouTube
+relay (needs network; kept out of CI so YouTube outages can't fail builds).
 
 ## Package (.wgt)
 

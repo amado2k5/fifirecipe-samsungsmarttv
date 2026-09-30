@@ -175,6 +175,29 @@ await shot('04-recipe-scrolled');
 await press('back');
 await waitFor(`!!document.querySelector('[data-focus-key="rk-featured-0"]')`, 'home after Return');
 
+// 3b. Optional (TV_SMOKE_VIDEO=1, needs the live relay + YouTube): play a
+// recipe video through https://samsungsmarttv.fifi.cooking/player.html.
+if (process.env.TV_SMOKE_VIDEO) {
+  await press('enter'); // featured card 0 has videos (carob drink)
+  await waitFor(`!!document.querySelector('[data-focus-key="vid-0"]')`, 'recipe videos rail');
+  for (let i = 0; i < 25 && (await focused()) !== 'vid-0'; i++) await press('down');
+  if ((await focused()) !== 'vid-0') fail(`could not reach the first video (at ${await focused()})`);
+  await press('enter');
+  await waitFor(`!!document.querySelector('iframe[src*="samsungsmarttv.fifi.cooking/player.html"]')`, 'relay player iframe');
+  await sleep(12000);
+  const failedText = await evaluate(`!!document.querySelector('[data-focus-key="video-overlay"] p.text-4xl')`);
+  if (failedText) fail('relay reported a YouTube playback error');
+  const { result } = await send('Target.getTargets');
+  const frames = (result?.targetInfos ?? []).map((t) => t.url).filter((u) => /youtube|player\.html/.test(u));
+  console.log(`video frames: ${JSON.stringify(frames)}`);
+  await shot('03b-video');
+  await press('back'); // closes the overlay
+  await waitFor(`!document.querySelector('iframe[src*="player.html"]')`, 'video overlay closed by Return');
+  await press('back'); // recipe → home
+  await waitFor(`!!document.querySelector('[data-focus-key="rk-featured-0"]')`, 'home after video');
+  await press('left', 4);
+}
+
 // 4. Top nav → Kids → a kids recipe → Return.
 await press('up', 4);
 if (!(await focused()).startsWith('nav-')) fail(`top nav not reachable (at ${await focused()})`);
