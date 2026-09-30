@@ -100,6 +100,9 @@ jobs:
           fi
       - name: Package .wgt
         run: npm run package
+      - name: Tizen CLI log
+        if: failure()
+        run: tail -n 80 ~/tizen-studio-data/cli/logs/cli.log || true
       - uses: actions/upload-artifact@v7
         with:
           name: fifi-recipes-wgt-${{ env.WGT_KIND }}
