@@ -1,0 +1,265 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'Tajawal', 'Noto Sans Arabic', 'Noto Sans', system-ui, sans-serif;
+
+  /* Fresh-market palette: warm cream canvas, produce accents. */
+  --color-paper: #fdf4e3;
+  --color-paper-deep: #f6e9d2;
+  --color-card: #fffdf8;
+  --color-card-hover: #fdeed6;
+  --color-card-border: #f0e2c8;
+  --color-ink: #43311f;
+  --color-ink-dim: #7d6a52;
+  --color-leaf: #4d9426;
+  --color-leaf-deep: #3a7a1e;
+  --color-leaf-soft: #e6f3d8;
+  --color-tomato: #e8590c;
+  --color-tomato-soft: #fde4d3;
+  --color-sun: #ffc53d;
+  --color-sun-soft: #fff3c4;
+  --color-berry: #d6336c;
+  --color-sky: #74c0fc;
+  --color-focus: #e8590c;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Script-specific type, mirroring fifi.cooking: Arabic and friends read best
+   in Tajawal; Urdu in Nastaliq (needs taller lines); Persian in Vazirmatn. */
+[dir='rtl'] body,
+[dir='rtl'] .font-sans,
+[dir='rtl'] button,
+[dir='rtl'] input {
+  font-family: 'Tajawal', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+[lang='ur'] body,
+[lang='ur'] .font-sans,
+[lang='ur'] button,
+[lang='ur'] input {
+  font-family: 'Noto Nastaliq Urdu', 'Tajawal', serif;
+}
+[lang='ur'] body {
+  line-height: 2.1;
+}
+[lang='ur'] h1,
+[lang='ur'] h2,
+[lang='ur'] h3,
+[lang='ur'] h4 {
+  line-height: 1.9;
+}
+
+[lang='fa'] body,
+[lang='fa'] .font-sans,
+[lang='fa'] button,
+[lang='fa'] input {
+  font-family: 'Vazirmatn', 'Tajawal', system-ui, sans-serif;
+}
+
+/* Kids mode gets the site's playful rounded faces. */
+.kids-root,
+.kids-root button,
+.kids-root input {
+  font-family: 'Baloo 2', 'Baloo Bhaijaan 2', 'Heebo', system-ui, sans-serif;
+}
+[dir='rtl'] .kids-root,
+[dir='rtl'] .kids-root button,
+[dir='rtl'] .kids-root input {
+  font-family: 'Baloo Bhaijaan 2', 'Heebo', 'Baloo 2', system-ui, sans-serif;
+}
+[lang='he'] .kids-root,
+[lang='he'] .kids-root button,
+[lang='he'] .kids-root input {
+  font-family: 'Heebo', 'Baloo 2', system-ui, sans-serif;
+}
+
+/* Fixed 1920x1080 design stage, letterboxed and scaled by JS. */
+.tv-stage {
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  background:
+    radial-gradient(1200px 700px at 88% -8%, rgb(255 205 130 / 0.5) 0%, transparent 60%),
+    radial-gradient(1100px 750px at -8% 108%, rgb(196 230 160 / 0.45) 0%, transparent 55%),
+    linear-gradient(180deg, var(--color-paper) 0%, var(--color-paper-deep) 100%);
+  overflow: hidden;
+}
+
+.tv-safe {
+  position: absolute;
+  inset: 54px 96px; /* 5% overscan safe area */
+}
+
+/* Kids mode: warm polka-dot canvas like the website's Cooking with Kids. */
+.kids-root {
+  position: absolute;
+  inset: 0;
+  background-color: #fff8e7;
+  background-image: radial-gradient(#f5d9a8 2.6px, transparent 2.6px);
+  background-size: 46px 46px;
+  color: #43311f;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Focus treatment: tomato ring + slight zoom + warm lift. Applied via
+   [data-focused] which the spatial nav engine sets on the focused DOM node. */
+.focusable {
+  outline: none;
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    background-color 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+.focusable[data-focused='true'],
+.focusable.focused {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 5px var(--color-focus),
+    0 14px 34px -8px rgb(232 89 12 / 0.4);
+  z-index: 5;
+}
+.focusable-static[data-focused='true'],
+.focusable-static.focused {
+  transform: none;
+  box-shadow:
+    0 0 0 5px var(--color-focus),
+    0 10px 28px -8px rgb(232 89 12 / 0.35);
+  z-index: 5;
+}
+/* Kids cards get a springier, bigger focus feel. */
+.kids-root .focusable[data-focused='true'],
+.kids-root .focusable.focused {
+  transform: scale(1.09);
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.text-shadow {
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.8);
+}
+
+@keyframes splash-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.88;
+    transform: scale(1.03);
+  }
+}
+.splash-logo {
+  animation: splash-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Crossfade for the home hero when the featured card changes. */
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.hero-fade {
+  animation: hero-fade 0.45s ease-out;
+}
+
+/* Kids-mode motion, ported from the website. */
+@keyframes kids-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.kids-pop {
+  animation: kids-pop 0.35s ease-out both;
+}
+
+@keyframes kids-wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+.kids-wiggle {
+  animation: kids-wiggle 0.5s ease-in-out;
+}
+
+/* Confetti of leaves/produce drifting down the celebration card. */
+@keyframes kids-fall {
+  0% {
+    transform: translateY(-10%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(480px) rotate(560deg);
+    opacity: 0.85;
+  }
+}
+.kids-fall {
+  animation: kids-fall 2.8s ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .hero-fade,
+  .kids-pop,
+  .kids-wiggle,
+  .kids-fall,
+  .splash-logo {
+    animation: none;
+  }
+}
