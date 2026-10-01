@@ -145,7 +145,7 @@ export const RecipeScreen: React.FC<Props> = ({ id }) => {
   const est = file.estimate;
 
   return (
-    <FocusGroup focusKey={`recipe-${id}`} className="hide-scrollbar h-full overflow-y-auto pb-24 fade-in">
+    <FocusGroup focusKey={`recipe-${id}`} className="hide-scrollbar h-full overflow-y-auto px-3 pt-3 pb-24 fade-in">
       <Focusable focusKey={RECIPE_DEFAULT_FOCUS} isStatic className="rounded-[2rem]">
         <div
           className="flex gap-10 rounded-[2rem] border-2 border-card-border bg-card p-8"
@@ -186,27 +186,35 @@ export const RecipeScreen: React.FC<Props> = ({ id }) => {
       </Focusable>
 
       <div className="mt-10 grid grid-cols-3 gap-10">
-        <section>
+        <section className="min-w-0">
           <h2 className="mb-4 flex items-center gap-3 text-4xl font-bold text-ink">
             <span className="inline-block h-7 w-7 rounded-full bg-leaf" aria-hidden="true" />
             {s.ingredients}
           </h2>
-          <div className="rounded-3xl border-2 border-card-border bg-card p-6">
+          <div className="rounded-3xl border-2 border-card-border bg-card p-3">
             {loc.ingredients.map((ing, i) => (
-              <Focusable key={i} focusKey={`ing-${i}`} isStatic className="rounded-lg">
-                <div className={`flex gap-3 py-3 text-[24px] leading-snug ${i ? 'border-t-2 border-card-border' : ''}`}>
+              <React.Fragment key={i}>
+              {/* Divider lives between rows (not on them) so the focus ring hugs a
+                  padded, fully rounded row instead of sitting on the text. */}
+              {i > 0 && <div className="mx-4 border-t-2 border-card-border" aria-hidden="true" />}
+              <Focusable focusKey={`ing-${i}`} isStatic className="rounded-2xl">
+                {/* Name and amount are stacked rather than side by side: amounts can be
+                    long phrases ("500g fresh leaves, finely chopped…") that squeeze the
+                    name in the one-third-width column. */}
+                <div className="flex gap-3 rounded-2xl px-4 py-4 text-[24px] leading-snug">
                   <span className="mt-2 inline-block h-3 w-3 shrink-0 rounded-full bg-leaf" aria-hidden="true" />
-                  <span className="min-w-0 flex-1 break-words font-medium text-ink">{ing.name}</span>
-                  {/* Long amounts ("3 tablespoons for signature crunch") share the
-                      row instead of starving the name column. */}
-                  {ing.amount && <span className="max-w-[48%] break-words text-end font-bold text-leaf-deep">{ing.amount}</span>}
+                  <div className="min-w-0 flex-1 break-words">
+                    <span className="block font-medium text-ink">{ing.name}</span>
+                    {ing.amount && <span className="mt-1 block font-bold text-leaf-deep">{ing.amount}</span>}
+                  </div>
                 </div>
               </Focusable>
+              </React.Fragment>
             ))}
           </div>
         </section>
 
-        <section className="col-span-2">
+        <section className="col-span-2 min-w-0">
           <h2 className="mb-4 flex items-center gap-3 text-4xl font-bold text-ink">
             <span className="inline-block h-7 w-7 rounded-full bg-tomato" aria-hidden="true" />
             {s.steps}
