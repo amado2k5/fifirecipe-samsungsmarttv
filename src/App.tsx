@@ -269,6 +269,26 @@ export default function App() {
     }
   }, [video]);
 
+  // Coming back to Home from another tab: ask for a fresh home layout (the
+  // server returns a different random hero + rails every time). Failures keep
+  // the current feed.
+  const prevTopName = useRef<Screen['name']>(top.name);
+  useEffect(() => {
+    const from = prevTopName.current;
+    prevTopName.current = top.name;
+    if (top.name !== 'home' || !TAB_NAMES.has(from) || from === 'home') return;
+    let current = true;
+    api
+      .freshFeed(lang)
+      .then((feed) => {
+        if (current) setData((prev) => (prev ? { ...prev, feed } : prev));
+      })
+      .catch(() => {});
+    return () => {
+      current = false;
+    };
+  }, [top.name, lang]);
+
   // Restore (or establish) focus whenever the top screen changes.
   const prevScreenRef = useRef('');
   useEffect(() => {
