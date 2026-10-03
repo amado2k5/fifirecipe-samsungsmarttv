@@ -38,6 +38,13 @@ fi
 xml_escape() { sed -e 's/&/\&amp;/g' -e 's/"/\&quot;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' <<<"$1"; }
 mkdir -p "$DATA/profile"
 PROFILES_XML="$DATA/profile/profiles.xml"
+# This rewrites profiles.xml wholesale — never clobber profiles made elsewhere
+# (e.g. the Samsung TV profile from Certificate Manager) outside CI.
+if [[ -f "$PROFILES_XML" && -z "${CI:-}" && -z "${TIZEN_PROFILE_FORCE:-}" ]] &&
+   grep -o '<profile name="[^"]*"' "$PROFILES_XML" | grep -qv "name=\"$PROFILE\""; then
+  echo "profiles.xml already has other profiles ($(grep -o '<profile name="[^"]*"' "$PROFILES_XML" | cut -d'"' -f2 | paste -sd, -)); not overwriting them. Set TIZEN_PROFILE_FORCE=1 to replace." >&2
+  exit 1
+fi
 cat > "$PROFILES_XML" <<XML
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <profiles active="$PROFILE" version="3.1">
