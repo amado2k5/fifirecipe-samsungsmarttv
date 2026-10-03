@@ -1,4 +1,4 @@
-# Samsung TV Seller Office submission — FiFi Recipes 1.0
+# Samsung TV Seller Office submission — FiFi Recipes 1.0.2
 
 Step by step, with every answer. Portal: https://seller.samsungapps.com/tv
 
@@ -16,9 +16,7 @@ Step by step, with every answer. Portal: https://seller.samsungapps.com/tv
 
 ```bash
 npm ci && npm run build
-SAMSUNG_AUTHOR_P12=author.p12 SAMSUNG_DISTRIBUTOR_P12=distributor.p12 \
-  TIZEN_CERT_PASSWORD=... scripts/tizen-profile.sh
-npm run package            # → build/FifiRecipes-1.0.0.wgt (signed)
+npm run package            # → build/FifiRecipes-1.0.2.wgt, signed with the "fifi-samsung" profile
 ```
 
 Or download the `fifi-recipes-wgt-samsung` artifact from the latest `main`
@@ -34,9 +32,9 @@ Seller Office › Applications › **Create App**.
 |-------|-------|
 | App title (default language English) | **FiFi Recipes** — must match `<name>` in config.xml |
 | Platform / device | Tizen · TV |
-| Package | upload `FifiRecipes-1.0.0.wgt` |
+| Package | upload `FifiRecipes-1.0.2.wgt` (Samsung-signed; tested on a 2020 QN65Q60T) |
 | Tizen ID / package ID | `FiFiCookTV.FifiRecipes` / `FiFiCookTV` (from config.xml) |
-| Version | 1.0.0 (bump `package.json` for every re-submission) |
+| Version | 1.0.2 (bump `package.json` for every re-submission) |
 | Model groups | **2020, 2021, 2022, 2023, 2024, 2025, 2026** (Tizen 5.5+ since 1.0.2; 2019 is phase 2) |
 | Countries | **United States** (Public seller); add others after partnership |
 | Category | Lifestyle (or the closest food/cooking category offered) |
@@ -46,6 +44,7 @@ Seller Office › Applications › **Create App**.
 | Support e-mail | **samsungtv@fifi.cooking** (create the mailbox, or change it in `site/` and `tizen/config.xml`) |
 | Support URL | https://samsungsmarttv.fifi.cooking/support.html |
 | Test account | Not needed — no login |
+| Tags (≥ 3, comma-separated) | `recipes, cooking, Egyptian food, Middle Eastern, kids cooking, family` |
 
 ### Title & descriptions
 
@@ -83,7 +82,9 @@ Seller Office › Applications › **Create App**.
 Regenerate after UI changes: `npm run build`, run the smoke test (screens
 land in `build/smoke/`), then `python3 scripts/store-assets.py`.
 
-### Application UI Description (upload as PDF)
+### Application UI Description
+
+Upload **`store/FiFi-Recipes-UI-Description.pptx`** (Seller Office asks for PPTX): 12 slides — app facts, remote keys, screen flow, one slide per screen with a 1.0.2 screenshot, and tester notes. It covers the flow below.
 
 Explain the remote flow for the certification team:
 
