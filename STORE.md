@@ -84,7 +84,7 @@ land in `build/smoke/`), then `python3 scripts/store-assets.py`.
 
 ### Application UI Description
 
-Upload **`store/FiFi-Recipes-UI-Description.pptx`** (Seller Office asks for PPTX): 12 slides — app facts, remote keys, screen flow, one slide per screen with a 1.0.2 screenshot, and tester notes. It covers the flow below.
+Upload **`store/FiFi-Recipes-App-Description.pptx`** in *Verification Information › App Description File*. It follows Samsung's App Description template (v1.42) section by section — cover with CP name, Revision History, Contents, UI Structure, Usage Scenario, Menu & function description (screenshots), Key Policy (Button/Action/Remarks with N/R and Samsung Mandatory rows), How to change languages — plus an overview and tester notes. Add a Revision History row for every resubmission.
 
 Explain the remote flow for the certification team:
 
