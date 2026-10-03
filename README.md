@@ -53,6 +53,12 @@ SAMSUNG_AUTHOR_P12=author.p12 SAMSUNG_DISTRIBUTOR_P12=distributor.p12 TIZEN_CERT
 npm run build && npm run package   # → build/FifiRecipes-<version>.wgt (fails if unsigned)
 ```
 
+`npm run package` signs with the `fifi-samsung` profile (Samsung TV profile
+from Certificate Manager — the one Seller Office accepts) when it is
+registered, otherwise `fifi`; override with `TIZEN_PROFILE=…`. It warns when
+the result is only dev-signed. `tizen-profile.sh` refuses to overwrite a
+`profiles.xml` that holds other profiles (`TIZEN_PROFILE_FORCE=1` to replace).
+
 Install on a TV in Developer Mode: `sdb connect <tv-ip>`, then
 `tizen install -n build/FifiRecipes-1.0.0.wgt -t <device>` and
 `tizen run -p FiFiCookTV.FifiRecipes -t <device>`.

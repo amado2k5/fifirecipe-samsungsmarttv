@@ -7,5 +7,7 @@ build
 .playwright-mcp/
 # Tizen/Samsung signing certificates and passwords — never commit
 *.p12
+*.pri
 certs/
+fifi-samsung/
 .tizen-cert.env

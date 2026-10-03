@@ -9,17 +9,19 @@
  *   tizen package -t wgt -s $TIZEN_PROFILE -- build/wgt
  * Output: build/FifiRecipes-<version>.wgt
  *
- * TIZEN_PROFILE (default "fifi") must be an existing security profile —
- * create one with scripts/tizen-profile.sh (dev certificate, or your Samsung
- * author/distributor certificates for Seller Office). The Tizen CLI is found
+ * TIZEN_PROFILE picks the security profile. Unset, it uses "fifi-samsung"
+ * (the Samsung TV profile made in Certificate Manager — the one Seller Office
+ * accepts) when registered, else "fifi" (scripts/tizen-profile.sh: the CI
+ * profile, or a dev certificate for the emulator). The Tizen CLI is found
  * via $TIZEN_CLI, `tizen` on PATH, or ~/tizen-studio/tools/ide/bin/tizen.
  * Without it an UNSIGNED archive is written (inspection only: TVs and Seller
  * Office reject unsigned widgets).
  */
 import { execFileSync } from 'node:child_process';
+import { X509Certificate } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const dist = join(root, 'dist');
@@ -38,6 +40,13 @@ cpSync(dist, stage, { recursive: true });
 writeFileSync(join(stage, 'config.xml'), readFileSync(join(root, 'tizen', 'config.xml'), 'utf8').replace('@VERSION@', version));
 cpSync(join(root, 'tizen', 'icon.png'), join(stage, 'icon.png'));
 
+/** Whether the Tizen CLI's profiles.xml (next to tizen-studio) registers `name`. */
+function hasProfile(cliPath, name) {
+  const sdk = cliPath.includes('/') ? join(dirname(cliPath), '..', '..', '..') : join(homedir(), 'tizen-studio');
+  const xml = join(process.env.TIZEN_DATA || join(dirname(sdk), 'tizen-studio-data'), 'profile', 'profiles.xml');
+  return existsSync(xml) && readFileSync(xml, 'utf8').includes(`<profile name="${name}"`);
+}
+
 const out = join(root, 'build', `FifiRecipes-${version}.wgt`);
 rmSync(out, { force: true });
 
@@ -53,7 +62,7 @@ const cli = [process.env.TIZEN_CLI, 'tizen', join(homedir(), 'tizen-studio', 'to
   });
 
 if (cli) {
-  const profile = process.env.TIZEN_PROFILE || 'fifi';
+  const profile = process.env.TIZEN_PROFILE || (hasProfile(cli, 'fifi-samsung') ? 'fifi-samsung' : 'fifi');
   execFileSync(cli, ['package', '-t', 'wgt', '-s', profile, '--', stage], { stdio: 'inherit' });
   const built = readdirSync(stage).find((f) => f.endsWith('.wgt'));
   if (!built) throw new Error('tizen package produced no .wgt');
@@ -68,6 +77,11 @@ if (cli) {
     }
   }
   console.log(`\nSigned package (profile "${profile}"): ${out}`);
+  const sig = execFileSync('unzip', ['-p', out, 'author-signature.xml']).toString();
+  const der = Buffer.from((sig.match(/<X509Certificate>([^<]+)</) ?? [])[1] ?? '', 'base64');
+  if (!der.length || !new X509Certificate(der).issuer.includes('Samsung')) {
+    console.warn('Note: signed with a development certificate — fine for the emulator, not accepted by Seller Office.');
+  }
 } else {
   const unsigned = out.replace(/\.wgt$/, '-unsigned.wgt');
   rmSync(unsigned, { force: true });
