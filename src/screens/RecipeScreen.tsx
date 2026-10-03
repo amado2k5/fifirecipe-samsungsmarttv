@@ -55,7 +55,11 @@ function localize(file: RecipeFile, lang: string): Localized {
     culturalNotes: t.culturalNotes,
     ingredients: r.masterIngredients.map((mi) => ({
       name: trIng[mi.id]?.name ?? mi.name,
-      amount: trIng[mi.id]?.standardAmount ?? mi.standardAmount,
+      // A missing translated amount falls back to English, not Arabic.
+      amount:
+        trIng[mi.id]?.standardAmount ??
+        (lang === 'ar' ? undefined : en.ingredients?.[mi.id]?.standardAmount) ??
+        mi.standardAmount,
     })),
     steps: r.uniqueInstructions.map((ui) => ({
       n: ui.stepNumber,
