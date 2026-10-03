@@ -64,14 +64,15 @@ function cached<T>(url: string): Promise<T> {
 }
 
 /** Versioned GET — appends ?v=<manifest version> once the manifest is loaded. */
-export function getJson<T>(path: string): Promise<T> {
+export function getJson<T>(path: string, fresh = false): Promise<T> {
   const version = manifest?.version;
   const url = API_ORIGIN + path + (version ? `?v=${encodeURIComponent(version)}` : '');
+  if (fresh) cache.delete(url);
   return cached<T>(url);
 }
 
-export function get<T>(endpoint: keyof EndpointTemplates, vars: Record<string, string> = {}): Promise<T> {
-  return getJson<T>(fill(endpoints[endpoint] ?? DEFAULT_ENDPOINTS[endpoint], vars));
+export function get<T>(endpoint: keyof EndpointTemplates, vars: Record<string, string> = {}, fresh = false): Promise<T> {
+  return getJson<T>(fill(endpoints[endpoint] ?? DEFAULT_ENDPOINTS[endpoint], vars), fresh);
 }
 
 /** Resolves a site-relative asset path (e.g. /recipe-images/x.jpg) or external URL. */
@@ -93,6 +94,8 @@ export function getManifest(): TvManifest | null {
 export const api = {
   index: (lang: string) => get<RecipeCard[]>('index', { lang }),
   feed: (lang: string) => get<Feed>('feed', { lang }),
+  /** Bypasses the session cache: the server returns a new random home layout per request. */
+  freshFeed: (lang: string) => get<Feed>('feed', { lang }, true),
   chapters: (lang: string) => get<Chapter[]>('chapters', { lang }),
   kids: (lang: string) => get<KidsCard[]>('kids', { lang }),
   recipe: (id: string) => get<RecipeFile>('recipe', { id }),
