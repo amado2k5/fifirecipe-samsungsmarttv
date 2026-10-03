@@ -5,11 +5,12 @@ import postcssPresetEnv from 'postcss-preset-env';
 import { defineConfig, type Plugin } from 'vite';
 
 /**
- * Oldest supported TV web engine: 2022 Samsung TVs (Tizen 6.5) ship Chromium
- * M85. Samsung's model-year table: 2022 M85 · 2023 M94 · 2024 M108 ·
- * 2025 M120 · 2026 M130 (developer.samsung.com › Web Engine Specifications).
+ * Oldest supported TV web engine: 2020 Samsung TVs (Tizen 5.5) ship Chromium
+ * M69. Samsung's model-year table: 2020 M69 · 2021 M76 · 2022 M85 ·
+ * 2023 M94 · 2024 M108 · 2025 M120 · 2026 M130 (developer.samsung.com ›
+ * Web Engine Specifications).
  */
-const TV_BROWSERS = ['chrome >= 85'];
+const TV_BROWSERS = ['chrome >= 69'];
 
 /**
  * Makes the build loadable by the Tizen web runtime:
@@ -18,7 +19,8 @@ const TV_BROWSERS = ['chrome >= 85'];
  *    `defer` instead of `type="module"`;
  *  - Tailwind v4 emits CSS for Chrome 111+: cascade layers (M99), :is()/:where()
  *    (M88) and logical shorthands such as padding-inline/inset (M87) are
- *    lowered with postcss-preset-env for Chromium 85.
+ *    lowered with postcss-preset-env for Chromium 69; flex `gap` and the
+ *    @property defaults get the fallbacks below.
  */
 /**
  * :where() is Chromium 88+; unknown pseudo-classes drop the whole rule on
@@ -37,6 +39,53 @@ const unwrapWhere: import('postcss').Plugin = {
   },
 };
 
+/**
+ * Tailwind registers its --tw-* variables with @property (Chromium 85+) and
+ * only sets their defaults in a fallback block gated to Safari/Firefox. On
+ * Chromium 69–84 those variables stay unset, so anything built from them
+ * (border-style, shadows, gradients, transforms) silently drops. Apply the
+ * defaults everywhere: they equal the @property initial values.
+ */
+const propertyDefaults: import('postcss').Plugin = {
+  postcssPlugin: 'fifi-property-defaults',
+  AtRule: {
+    supports(at) {
+      if (at.params.includes('-webkit-hyphens') && at.params.includes('-moz-orient')) at.replaceWith(at.nodes ?? []);
+    },
+  },
+};
+
+/**
+ * Flex `gap` is Chromium 84+ (2021 TVs and older lack it; grid gap works).
+ * For every `.gap-*` utility, emit margin equivalents that apply only under
+ * `html.no-flex-gap` (set at startup by src/flexGap.ts). They live in the
+ * components layer, so a child's own margin utilities still win.
+ */
+const flexGapFallback: import('postcss').Plugin = {
+  postcssPlugin: 'fifi-flex-gap-fallback',
+  Once(root, { postcss: pc }) {
+    const out: string[] = [];
+    root.walkRules(/^\.gap-[\w\\.]+$/, (rule) => {
+      let value = '';
+      rule.walkDecls('gap', (d) => {
+        value = d.value;
+      });
+      if (!value) return;
+      const c = rule.selector;
+      const row = [`.flex${c}`, `.inline-flex${c}`].map((s) => `${s}:not(.flex-col):not(.flex-wrap)>*+*`);
+      out.push(
+        `.no-flex-gap ${row.join(',.no-flex-gap ')}{margin-left:${value}}`,
+        `html.no-flex-gap[dir=rtl] ${row.join(',html.no-flex-gap[dir=rtl] ')}{margin-left:0;margin-right:${value}}`,
+        `.no-flex-gap .flex-col${c}>*+*{margin-top:${value}}`,
+        `.no-flex-gap .flex-wrap${c}{margin-bottom:calc(${value} * -1)}`,
+        `.no-flex-gap .flex-wrap${c}>*{margin-bottom:${value};margin-right:${value}}`,
+        `html.no-flex-gap[dir=rtl] .flex-wrap${c}>*{margin-right:0;margin-left:${value}}`,
+      );
+    });
+    if (out.length) root.append(pc.parse(`@layer components{${out.join('')}}`));
+  },
+};
+
 function tizenCompat(): Plugin {
   return {
     name: 'fifi:tizen-compat',
@@ -50,6 +99,8 @@ function tizenCompat(): Plugin {
       order: 'post',
       async handler(_opts, bundle) {
         const processor = postcss([
+        propertyDefaults,
+        flexGapFallback,
         postcssPresetEnv({
           browsers: TV_BROWSERS,
           stage: 2,
@@ -77,8 +128,8 @@ export default defineConfig({
   base: './',
   plugins: [react(), tailwindcss(), tizenCompat()],
   build: {
-    target: 'chrome85',
-    cssTarget: 'chrome85',
+    target: 'chrome69',
+    cssTarget: 'chrome69',
     modulePreload: false,
     cssCodeSplit: false,
     chunkSizeWarningLimit: 1200,

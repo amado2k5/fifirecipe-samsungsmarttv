@@ -193,7 +193,7 @@ export const RecipeScreen: React.FC<Props> = ({ id }) => {
         <section className="min-w-0">
           <h2 className="mb-4 flex items-center gap-3 text-4xl font-bold text-ink">
             <span className="inline-block h-7 w-7 rounded-full bg-leaf" aria-hidden="true" />
-            {s.ingredients}
+            <span>{s.ingredients}</span>
           </h2>
           <div className="rounded-3xl border-2 border-card-border bg-card p-3">
             {loc.ingredients.map((ing, i) => (
@@ -221,7 +221,7 @@ export const RecipeScreen: React.FC<Props> = ({ id }) => {
         <section className="col-span-2 min-w-0">
           <h2 className="mb-4 flex items-center gap-3 text-4xl font-bold text-ink">
             <span className="inline-block h-7 w-7 rounded-full bg-tomato" aria-hidden="true" />
-            {s.steps}
+            <span>{s.steps}</span>
           </h2>
           <div className="flex flex-col gap-4">
             {coreSteps.map((st) => (
@@ -242,7 +242,7 @@ export const RecipeScreen: React.FC<Props> = ({ id }) => {
         <section className="mt-10">
           <h2 className="mb-4 flex items-center gap-3 text-4xl font-bold text-ink">
             <span className="inline-block h-7 w-7 rounded-full bg-berry" aria-hidden="true" />
-            {s.alternativeMethods}
+            <span>{s.alternativeMethods}</span>
           </h2>
           <div className="flex flex-col gap-4">
             {[...altGroups.entries()].map(([label, steps], gi) =>
@@ -265,7 +265,7 @@ export const RecipeScreen: React.FC<Props> = ({ id }) => {
         <section className="mt-10">
           <h2 className="mb-4 flex items-center gap-3 text-4xl font-bold text-ink">
             <span className="inline-block h-7 w-7 rounded-full bg-sun" aria-hidden="true" />
-            {s.tips}
+            <span>{s.tips}</span>
           </h2>
           {tips.map((st, i) => (
             <Focusable key={st.n} focusKey={`tip-${i}`} isStatic className="mb-4 rounded-3xl">

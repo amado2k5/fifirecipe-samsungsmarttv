@@ -1,7 +1,7 @@
 # FiFi Recipes — Samsung Smart TV
 
 Tizen web app for [fifi.cooking](https://fifi.cooking), the recipe site by
-Dr. Fatma / FiFi, for Samsung Smart TVs (2022 and newer). It shares its
+Dr. Fatma / FiFi, for Samsung Smart TVs (2020 and newer). It shares its
 code base with the Fire TV app (`fifirecipes-amazonfire`): Vite + React +
 TypeScript + Tailwind, D-pad spatial navigation, a fixed 1920×1080 stage,
 24 languages with RTL, and the same static JSON API (`docs/tv-api.md` in the
@@ -11,8 +11,8 @@ TypeScript + Tailwind, D-pad spatial navigation, a fixed 1920×1080 stage,
 [STORE.md](STORE.md).**
 
 - Tizen app id `FiFiCookTV.FifiRecipes` · package `FiFiCookTV` ·
-  `required_version` 6.5
-- Oldest supported engine: Chromium 85 (2022 TVs)
+  `required_version` 5.5
+- Oldest supported engine: Chromium 69 (2020 TVs, Tizen 5.5)
 - Live: https://samsungsmarttv.fifi.cooking (site, privacy, support, YouTube
   relay) · https://samsungsmarttv.fifi.cooking/app/ (web build — arrow keys +
   Enter, Backspace = Return)
@@ -23,7 +23,7 @@ TypeScript + Tailwind, D-pad spatial navigation, a fixed 1920×1080 stage,
 npm install
 npm run dev          # http://localhost:3000 — view at 1920×1080
 npm run lint         # type-check
-npm run build        # dist/ — Tizen-ready (Chromium 85, classic script, lowered CSS)
+npm run build        # dist/ — Tizen-ready (Chromium 69, classic script, lowered CSS)
 ```
 
 Laptop keys map to the remote: arrows, Enter = OK, Backspace/Esc = Return.
@@ -31,7 +31,7 @@ Laptop keys map to the remote: arrows, Enter = OK, Backspace/Esc = Return.
 ## Test on the TV engine
 
 ```bash
-# Chromium 85 = 2022 Samsung TV engine (snapshot 782782 mac / 782790 linux)
+# Chromium 69 = 2020 TV engine (snapshot 576753), Chromium 85 = 2022 (782782 mac / 782790 linux)
 CHROME="arch -x86_64 /path/to/Chromium.app/Contents/MacOS/Chromium" node scripts/tv-smoke.mjs
 ```
 
@@ -72,8 +72,8 @@ Install on a TV in Developer Mode: `sdb connect <tv-ip>`, then
 | `src/platform.ts` | media-key registration, exit to Smart Hub, visibility + connectivity events |
 | `src/remote.ts` | Tizen keyCodes (Return 10009, media keys) |
 | `src/components/VideoOverlay.tsx` + `site/player.html` | YouTube via an HTTPS relay page (file:// apps have no referrer) |
-| `vite.config.ts` | Chromium 85 target, IIFE bundle, PostCSS lowering of Tailwind v4 CSS |
-| `scripts/tv-smoke.mjs` | Chromium 85 remote-control test |
+| `vite.config.ts` | Chromium 69 target, IIFE bundle, PostCSS lowering of Tailwind v4 CSS, flex-gap fallback |
+| `scripts/tv-smoke.mjs` | Chromium 69/85 remote-control test |
 | `scripts/package-wgt.mjs`, `scripts/tizen-profile.sh` | signed `.wgt` packaging |
 | `scripts/build-site.mjs`, `site/` | GitHub Pages site |
 | `scripts/store-assets.py`, `store/` | Seller Office images |
@@ -81,6 +81,6 @@ Install on a TV in Developer Mode: `sdb connect <tv-ip>`, then
 ## CI/CD
 
 `.github/workflows/build-deploy.yml` — every PR and push: type-check, build,
-Chromium 85 smoke test, signed `.wgt` artifact (Samsung-signed when the
+Chromium 69 + 85 smoke tests, signed `.wgt` artifact (Samsung-signed when the
 `SAMSUNG_*` secrets exist, dev-signed otherwise). Every merge to `main` also
 deploys `build/site/` to https://samsungsmarttv.fifi.cooking.

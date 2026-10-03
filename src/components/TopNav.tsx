@@ -71,7 +71,7 @@ export const TopNav: React.FC<TopNavProps> = ({ active }) => {
               }`}
             >
               {ICONS[t.id]}
-              {s[t.labelKey]}
+              <span>{s[t.labelKey]}</span>
             </span>
           )}
         </Focusable>

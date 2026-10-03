@@ -1,9 +1,9 @@
 name: Build, test & deploy
 
 # Every PR and every merge to main:
-#   1. type-check + production build (Chromium 85 / Tizen 6.5 target)
-#   2. remote-control smoke test on a real Chromium 85 — the web engine of
-#      2022 Samsung TVs, the oldest the app supports
+#   1. type-check + production build (Chromium 69 / Tizen 5.5 target)
+#   2. remote-control smoke test on real Chromium 69 and 85 — the web engines
+#      of 2020 Samsung TVs (the oldest the app supports) and 2022 TVs
 #   3. signed Tizen package (.wgt) — with the Samsung certificates when the
 #      repository secrets exist, otherwise a development certificate
 #   4. (main only) deploy site + web build + YouTube relay to
@@ -22,7 +22,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Chromium snapshot 782790 = 85.0.4183 (Samsung 2022 TVs run M85).
+  # Chromium snapshots: 576753 = 69.0.3497 (2020 TVs), 782790 = 85.0.4183 (2022 TVs).
+  CHROMIUM_M69: https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/576753/chrome-linux.zip
   CHROMIUM_M85: https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/782790/chrome-linux.zip
   TIZEN_CLI_URL: https://download.tizen.org/sdk/Installer/tizen-studio_6.1/web-cli_Tizen_Studio_6.1_ubuntu-64.bin
 
@@ -38,7 +39,7 @@ jobs:
       - run: npm ci
       - name: Type-check
         run: npm run lint
-      - name: Build (Tizen / Chromium 85 target)
+      - name: Build (Tizen / Chromium 69 target)
         run: npm run build
 
       - name: Chromium 85 (2022 Samsung TV engine)
@@ -55,11 +56,24 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq libgbm1 libnss3 libxss1 libasound2t64 fonts-noto-core fonts-noto-cjk > /dev/null
       - name: Remote-control smoke test on Chromium 85
         run: CHROME="$HOME/chromium-m85/chrome-linux/chrome --no-sandbox" node scripts/tv-smoke.mjs
+      - name: Chromium 69 (2020 Samsung TV engine)
+        uses: actions/cache@v6
+        with:
+          path: ~/chromium-m69
+          key: chromium-m69-576753
+      - name: Download Chromium 69 if not cached
+        run: |
+          if [ ! -x ~/chromium-m69/chrome-linux/chrome ]; then
+            mkdir -p ~/chromium-m69 && curl -sSL "$CHROMIUM_M69" -o /tmp/chrome69.zip
+            unzip -q /tmp/chrome69.zip -d ~/chromium-m69
+          fi
+      - name: Remote-control smoke test on Chromium 69
+        run: CHROME="$HOME/chromium-m69/chrome-linux/chrome --no-sandbox" SMOKE_NAME=smoke-m69 node scripts/tv-smoke.mjs
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: tv-smoke-screenshots
-          path: build/smoke/
+          path: build/smoke*/
 
       - uses: actions/setup-java@v6
         with:

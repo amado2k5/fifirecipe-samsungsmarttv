@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * TV smoke test on a real old Chromium — the web engine of the oldest
- * supported Samsung TVs (2022, Tizen 6.5 = Chromium M85).
+ * TV smoke test on a real old Chromium — the web engines of the oldest
+ * supported Samsung TVs (2020, Tizen 5.5 = Chromium M69; 2022 = M85).
  *
  * Loads dist/index.html from file:// exactly like the packaged Tizen app,
  * injects a mock `tizen` object, drives the UI with remote keyCodes over the
@@ -10,8 +10,9 @@
  *
  *   CHROME=/path/to/chromium node scripts/tv-smoke.mjs
  *
- * CI downloads Chromium snapshot 782782 (85.0.4183) for this; locally any
- * Chromium works (macOS: prefix with `arch -x86_64` for the x64 snapshot).
+ * CI runs it on Chromium snapshots 576753 (69.0.3497) and 782790 (85.0.4183);
+ * locally any Chromium works (macOS: prefix with `arch -x86_64` for the x64
+ * snapshots). SMOKE_NAME picks the screenshot folder (default build/smoke).
  */
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs';
@@ -25,7 +26,7 @@ if (!chrome) {
   console.error('Set CHROME to a Chromium binary (e.g. the M85 snapshot).');
   process.exit(2);
 }
-const shots = join(root, 'build', 'smoke');
+const shots = join(root, 'build', process.env.SMOKE_NAME || 'smoke');
 mkdirSync(shots, { recursive: true });
 const port = 9300 + Math.floor(Math.random() * 500);
 const profile = mkdtempSync(join(tmpdir(), 'fifi-tv-'));
@@ -113,7 +114,7 @@ async function waitFor(expr, label, ms = 30000) {
   fail(`timed out waiting for ${label}`);
   return false;
 }
-const focused = () => evaluate(`(document.querySelector('.focusable.focused')||{}).dataset?.focusKey || ''`);
+const focused = () => evaluate(`((document.querySelector('.focusable.focused')||{}).dataset||{}).focusKey || ''`);
 async function shot(name) {
   const { result } = await send('Page.captureScreenshot', { format: 'png' });
   writeFileSync(join(shots, `${name}.png`), Buffer.from(result.data, 'base64'));
