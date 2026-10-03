@@ -4,7 +4,7 @@ Tizen web app for [fifi.cooking](https://fifi.cooking), the recipe site by
 Dr. Fatma / FiFi, for Samsung Smart TVs (2020 and newer). It shares its
 code base with the Fire TV app (`fifirecipes-amazonfire`): Vite + React +
 TypeScript + Tailwind, D-pad spatial navigation, a fixed 1920×1080 stage,
-24 languages with RTL, and the same static JSON API (`docs/tv-api.md` in the
+25 languages with RTL, and the same static JSON API (`docs/tv-api.md` in the
 `fifirecipes` repo).
 
 **Plan, platform research and roadmap: [PLAN.md](PLAN.md). Store submission:

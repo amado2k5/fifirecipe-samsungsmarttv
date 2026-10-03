@@ -50,10 +50,10 @@ Seller Office › Applications › **Create App**.
 
 **English**
 - Title: `FiFi Recipes`
-- Short: `Dr. Fatma's Egyptian family recipes in 24 languages, with a Kids cooking mode.`
+- Short: `Dr. Fatma's Egyptian family recipes in 25 languages, with a Kids cooking mode.`
 - Description:
 
-  > Dr. Fatma's beloved Egyptian home cooking, on the big screen. Browse more than a thousand family recipes by chapter, search with the on-screen keyboard, and follow clear ingredient lists and numbered steps from across the kitchen — in 24 languages, including Arabic, Urdu and other right-to-left languages.
+  > Dr. Fatma's beloved Egyptian home cooking, on the big screen. Browse more than a thousand family recipes by chapter, search with the on-screen keyboard, and follow clear ingredient lists and numbered steps from across the kitchen — in 25 languages, including Arabic, Urdu and other right-to-left languages.
   >
   > Kids mode turns cooking into a family activity: illustrated recipes, a get-ready checklist, allergen warnings, grown-up alerts, big step cards and a celebration when the dish is done. Recipe videos play full screen, and the Play/Pause and Stop keys on your remote work as you'd expect.
   >
