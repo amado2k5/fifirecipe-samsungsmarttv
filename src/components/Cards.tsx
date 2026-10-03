@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { assetUrl } from '../api/client';
 import type { KidsCard, RecipeCard } from '../api/types';
 import { Focusable } from './Focusable';
@@ -25,10 +25,45 @@ interface ImgProps {
   className?: string;
 }
 
-/** Remote image with async decode and a friendly produce placeholder. */
+/** Extra load attempts after a failure (dropped Wi-Fi, flaky CDN edge). */
+const IMG_RETRIES = 2;
+
+/**
+ * Remote image with async decode and a friendly produce placeholder.
+ * A failed load is retried twice with a short backoff before the placeholder
+ * sticks, and a new `src` (e.g. the sharper full-size photo replacing the card
+ * thumbnail) always gets a fresh start — previously one failure pinned the
+ * placeholder for good.
+ */
 export const Img: React.FC<ImgProps> = ({ src, alt, className }) => {
+  const [loadedSrc, setLoadedSrc] = useState(src);
+  const [attempt, setAttempt] = useState(0);
+  const [waiting, setWaiting] = useState(false);
   const [failed, setFailed] = useState(false);
-  if (!src || failed) {
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  if (src !== loadedSrc) {
+    setLoadedSrc(src);
+    setAttempt(0);
+    setWaiting(false);
+    setFailed(false);
+  }
+
+  useEffect(() => () => clearTimeout(timer.current), [src]);
+
+  const onError = () => {
+    if (attempt >= IMG_RETRIES) {
+      setFailed(true);
+      return;
+    }
+    setWaiting(true);
+    timer.current = setTimeout(() => {
+      setWaiting(false);
+      setAttempt((a) => a + 1);
+    }, 800 * (attempt + 1));
+  };
+
+  if (!src || failed || waiting) {
     return (
       <div className={`bg-leaf-soft flex items-center justify-center ${className ?? ''}`} aria-label={alt}>
         <svg viewBox="0 0 100 100" width={84} height={84}>
@@ -38,15 +73,17 @@ export const Img: React.FC<ImgProps> = ({ src, alt, className }) => {
       </div>
     );
   }
+  // A changed URL makes the browser request the image again on retries.
+  const url = attempt ? `${src}${src.includes('?') ? '&' : '?'}retry=${attempt}` : src;
   return (
     <img
-      src={src}
+      src={url}
       alt={alt}
       className={className}
       decoding="async"
       loading="lazy"
       draggable={false}
-      onError={() => setFailed(true)}
+      onError={onError}
     />
   );
 };
