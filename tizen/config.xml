@@ -6,7 +6,7 @@
   version  x.y.z (x,y 0-255, z 0-65535) — scripts/package-wgt.mjs stamps the
            package.json version in; bump it for every Seller Office upload.
   package  exactly 10 alphanumeric characters; app id = package.name.
-  required_version 6.5 = 2022 TVs (Chromium M85), the oldest engine the build
+  required_version 5.5 = 2020 TVs (Chromium M69), the oldest engine the build
            targets (vite.config.ts TV_BROWSERS).
 -->
 <widget xmlns="http://www.w3.org/ns/widgets"
@@ -14,7 +14,7 @@
         id="https://samsungsmarttv.fifi.cooking/app"
         version="@VERSION@"
         viewmodes="maximized">
-  <tizen:application id="FiFiCookTV.FifiRecipes" package="FiFiCookTV" required_version="6.5"/>
+  <tizen:application id="FiFiCookTV.FifiRecipes" package="FiFiCookTV" required_version="5.5"/>
   <tizen:profile name="tv"/>
   <feature name="http://tizen.org/feature/screen.size.all"/>
 

@@ -9,9 +9,9 @@ what remains. Research date: 30 Sep 2026 (sources at the end).
 |-------|----------------------------|----------|
 | App type | Tizen **web application**, packaged as a signed `.wgt` with `config.xml` at the root. | Reuse the Fire TV React web app (already 10-foot, D-pad, 1920×1080) — no native code. |
 | Resolution | Apps render at **1920×1080** on every model (4K/8K TVs upscale). | Keep the Fire TV fixed 1920×1080 stage with 5 % overscan-safe margins. |
-| Web engine | Chromium by model year: 2019 M63 · 2020 M69 · 2021 M76 · **2022 M85** · 2023 M94 · 2024 M108 · 2025 M120 · 2026 M130. 2023+ TVs receive OS upgrades. | **v1 supports 2022+ TVs (Tizen 6.5, Chromium 85)**: flex `gap` (M84) is used throughout the layout and cannot be polyfilled cheaply. 2019–2021 is phase 2 (§5). |
+| Web engine | Chromium by model year: 2019 M63 · 2020 M69 · 2021 M76 · **2022 M85** · 2023 M94 · 2024 M108 · 2025 M120 · 2026 M130. 2023+ TVs receive OS upgrades. | **Supports 2020+ TVs (Tizen 5.5, Chromium 69)** since 1.0.2: flex `gap` (M84) gets a build-time margin fallback under `html.no-flex-gap` (detected at startup), and Tailwind's `@property` defaults are applied unconditionally. 2019 (M63) is still phase 2 (§5). |
 | Loading | Packaged apps run from `file://`; Chromium refuses ES-module scripts from `file://`. | Build as one classic IIFE bundle loaded with `defer`. |
-| CSS | Tailwind v4 output targets Chrome 111+ (cascade layers, `:is/:where`, logical shorthands). | Post-build PostCSS pass (postcss-preset-env for Chrome 85 + `:where` unwrap). Verified in a real Chromium 85. |
+| CSS | Tailwind v4 output targets Chrome 111+ (cascade layers, `:is/:where`, logical shorthands). | Post-build PostCSS pass (postcss-preset-env for Chrome 69 + `:where` unwrap + flex-gap/@property fallbacks). Verified in real Chromium 69 and 85. |
 | Remote keys | Arrows, Enter and **Return (10009)** arrive without registration; media/colour keys need `tizen.tvinputdevice.registerKey` + the `tv.inputdevice` privilege. **Exit (10182)** is handled by the system. | Register Play/Pause, Play, Pause and Stop only (undefined keys must stay inert). |
 | Return / Exit policy | Return walks back through screens and, **on the main screen, closes the app** to Smart Hub. Exit must close immediately with no popup. | Return at Home → `tizen.application.getCurrentApplication().exit()`. Exit untouched. |
 | Pointer | Smart remotes can move a pointer; the UI is focus-driven. | `pointing-device-support="disable"`. |
@@ -28,12 +28,12 @@ what remains. Research date: 30 Sep 2026 (sources at the end).
   in `remote.ts`, video overlay through the relay with media keys and
   background pause, offline banner with automatic recovery, ingredient-row
   layout fix for long amounts.
-- **Build** (`vite.config.ts`): Chromium 85 JS target, classic IIFE bundle,
+- **Build** (`vite.config.ts`): Chromium 69 JS target, classic IIFE bundle,
   CSS lowering; `tizen/config.xml` (package `FiFiCookTV`, app id
-  `FiFiCookTV.FifiRecipes`, `required_version` 6.5, privileges `internet` +
+  `FiFiCookTV.FifiRecipes`, `required_version` 5.5, privileges `internet` +
   `tv.inputdevice`).
 - **Tests**: `scripts/tv-smoke.mjs` drives the packaged build (`file://`) in
-  a real **Chromium 85** with remote keyCodes and a mock `tizen` runtime —
+  real **Chromium 69 and 85** with remote keyCodes and a mock `tizen` runtime —
   language picker, Home, recipe, Return, Kids, search keyboard,
   Return-exits-app, Arabic RTL, layout checks, zero JS errors.
 - **Packaging**: `npm run package` → signed `build/FifiRecipes-<ver>.wgt`
@@ -42,7 +42,7 @@ what remains. Research date: 30 Sep 2026 (sources at the end).
 - **Site** (`site/` → https://samsungsmarttv.fifi.cooking): landing, privacy
   policy, support, YouTube relay, plus the web build at `/app/`.
 - **CI/CD** (`.github/workflows/build-deploy.yml`): every PR/push builds,
-  runs the Chromium 85 test, packages the `.wgt` (artifact); every merge to
+  runs the Chromium 69 + 85 tests, packages the `.wgt` (artifact); every merge to
   `main` deploys the site.
 - **Store kit**: `store/` images + `STORE.md` Seller Office walkthrough.
 
@@ -66,15 +66,15 @@ rest.)
 Seller Office account → register app (Tizen, TV) → upload signed `.wgt` →
 titles/descriptions (en + ar), category *Lifestyle* (or the closest food category offered), age rating
 *All*, privacy URL, support e-mail, logo/background/icon, 4 screenshots,
-UI description → select **2022–2026** model groups and **United States** →
+UI description → select **2020–2026** model groups and **United States** →
 submit for certification → fix defects if any → publish.
 
 ## 5. Next phases
 
-1. **2019–2021 TVs (Chromium 63–76):** replace flex `gap` with a
-   margin-based fallback (`@supports not (gap)`-style class shim),
-   lower `required_version` to 5.0 and the build target to Chrome 63, add
-   those snapshots to the smoke test.
+1. **2019 TVs (Chromium 63):** 2020–2021 done in 1.0.2 (flex-gap margin
+   fallback, `required_version` 5.5, Chrome 69 build target, M69 smoke
+   test). For 2019: lower to `required_version` 5.0 / Chrome 63 and add
+   that snapshot to the smoke test.
 2. **Partner membership** for launch outside the US.
 3. **Smart Hub Preview** tiles (featured recipes on the home row) and
    **deep links** from the preview into a recipe.

@@ -37,7 +37,7 @@ Seller Office › Applications › **Create App**.
 | Package | upload `FifiRecipes-1.0.0.wgt` |
 | Tizen ID / package ID | `FiFiCookTV.FifiRecipes` / `FiFiCookTV` (from config.xml) |
 | Version | 1.0.0 (bump `package.json` for every re-submission) |
-| Model groups | **2022, 2023, 2024, 2025, 2026** (Tizen 6.5+; older TVs are phase 2) |
+| Model groups | **2020, 2021, 2022, 2023, 2024, 2025, 2026** (Tizen 5.5+ since 1.0.2; 2019 is phase 2) |
 | Countries | **United States** (Public seller); add others after partnership |
 | Category | Lifestyle (or the closest food/cooking category offered) |
 | Age rating | All ages — no violence, no user-generated content, no purchases |

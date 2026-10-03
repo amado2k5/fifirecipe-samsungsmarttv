@@ -3,6 +3,7 @@ import { init } from '@noriginmedia/norigin-spatial-navigation';
 import App from './App';
 import { installKeyMap } from './remote';
 import { registerTvKeys } from './platform';
+import { detectFlexGap } from './flexGap';
 import './index.css';
 
 init({
@@ -16,6 +17,7 @@ init({
   throttle: 100,
   throttleKeypresses: true,
 });
+detectFlexGap();
 installKeyMap();
 registerTvKeys();
 
