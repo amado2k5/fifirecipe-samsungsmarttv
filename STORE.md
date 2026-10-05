@@ -1,4 +1,4 @@
-# Samsung TV Seller Office submission — FiFi Recipes 1.0.2
+# Samsung TV Seller Office submission — FiFi Recipes 1.0.3
 
 Step by step, with every answer. Portal: https://seller.samsungapps.com/tv
 
@@ -16,7 +16,7 @@ Step by step, with every answer. Portal: https://seller.samsungapps.com/tv
 
 ```bash
 npm ci && npm run build
-npm run package            # → build/FifiRecipes-1.0.2.wgt, signed with the "fifi-samsung" profile
+npm run package            # → build/FifiRecipes-1.0.3.wgt, signed with the "fifi-samsung" profile
 ```
 
 Or download the `fifi-recipes-wgt-samsung` artifact from the latest `main`
@@ -32,9 +32,9 @@ Seller Office › Applications › **Create App**.
 |-------|-------|
 | App title (default language English) | **FiFi Recipes** — must match `<name>` in config.xml |
 | Platform / device | Tizen · TV |
-| Package | upload `FifiRecipes-1.0.2.wgt` (Samsung-signed; tested on a 2020 QN65Q60T) |
+| Package | upload `FifiRecipes-1.0.3.wgt` (Samsung-signed; 1.0.2 was tested on a 2020 QN65Q60T) |
 | Tizen ID / package ID | `FiFiCookTV.FifiRecipes` / `FiFiCookTV` (from config.xml) |
-| Version | 1.0.2 (bump `package.json` for every re-submission) |
+| Version | 1.0.3 (bump `package.json` for every upload, beta tests included: Seller Office rejects a version it has already registered) |
 | Model groups | **2020, 2021, 2022, 2023, 2024, 2025, 2026** (Tizen 5.5+ since 1.0.2; 2019 is phase 2) |
 | Countries | **United States** (Public seller); add others after partnership |
 | Category | Lifestyle (or the closest food/cooking category offered) |
