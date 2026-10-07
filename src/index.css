@@ -78,6 +78,14 @@ body {
   font-family: 'Noto Sans Telugu', 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
+/* Bengali likewise — no Bengali system font in TV browsers. */
+[lang='bn'] body,
+[lang='bn'] .font-sans,
+[lang='bn'] button,
+[lang='bn'] input {
+  font-family: 'Noto Sans Bengali', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
 /* Kids mode gets the site's playful rounded faces. */
 .kids-root,
 .kids-root button,
@@ -98,6 +106,11 @@ body {
 [lang='te'] .kids-root button,
 [lang='te'] .kids-root input {
   font-family: 'Noto Sans Telugu', 'Baloo 2', system-ui, sans-serif;
+}
+[lang='bn'] .kids-root,
+[lang='bn'] .kids-root button,
+[lang='bn'] .kids-root input {
+  font-family: 'Baloo Da 2', 'Noto Sans Bengali', system-ui, sans-serif;
 }
 
 /* Fixed 1920x1080 design stage, letterboxed and scaled by JS. */

@@ -19,7 +19,7 @@
   <feature name="http://tizen.org/feature/screen.size.all"/>
 
   <name>FiFi Recipes</name>
-  <description>Dr. Fatma's Egyptian family recipes in 25 languages, with a Kids cooking mode.</description>
+  <description>Dr. Fatma's Egyptian family recipes in 26 languages, with a Kids cooking mode.</description>
   <author href="https://samsungsmarttv.fifi.cooking" email="samsungtv@fifi.cooking">Dr. Fatma / FiFi</author>
   <icon src="icon.png"/>
   <content src="index.html"/>
