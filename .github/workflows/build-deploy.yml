@@ -6,8 +6,8 @@ name: Build, test & deploy
 #      of 2020 Samsung TVs (the oldest the app supports) and 2022 TVs
 #   3. signed Tizen package (.wgt) — with the Samsung certificates when the
 #      repository secrets exist, otherwise a development certificate
-#   4. (main only) deploy site + web build + YouTube relay to
-#      https://samsungsmarttv.fifi.cooking via GitHub Pages
+#   4. (main only) site deployed to https://samsungsmarttv.fifi.cooking via
+#      Cloudflare Pages native Git integration (triggered on push to main)
 on:
   push:
     branches: [main]
@@ -122,26 +122,5 @@ jobs:
           name: fifi-recipes-wgt-${{ env.WGT_KIND }}
           path: build/*.wgt
 
-      - name: Assemble Pages site
+      - name: Assemble site
         run: npm run package:site
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: build/site
-
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    concurrency:
-      group: github-pages
-      cancel-in-progress: false
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
