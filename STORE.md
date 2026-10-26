@@ -44,16 +44,17 @@ Seller Office › Applications › **Create App**.
 | Support e-mail | **samsungtv@fifi.cooking** (create the mailbox, or change it in `site/` and `tizen/config.xml`) |
 | Support URL | https://samsungsmarttv.fifi.cooking/support.html |
 | Test account | Not needed — no login |
-| Tags (≥ 3, comma-separated) | `recipes, cooking, Egyptian food, Middle Eastern, kids cooking, family` |
+| Tags (English, ≥ 3, comma-separated) | `recipes, cooking, Egyptian food, Middle Eastern, kids cooking, family` |
+| Tags (Arabic, عربي) | `وصفات, طبخ, أكلات مصرية, شرق أوسطي, طبخ الأطفال, عيلة` |
 
 ### Title & descriptions
 
 **English**
 - Title: `FiFi Recipes`
-- Short: `Dr. Fatma's Egyptian family recipes in 25 languages, with a Kids cooking mode.`
+- Short: `Dr. Fatma's Egyptian family recipes in 30 languages, with a Kids cooking mode.`
 - Description:
 
-  > Dr. Fatma's beloved Egyptian home cooking, on the big screen. Browse more than a thousand family recipes by chapter, search with the on-screen keyboard, and follow clear ingredient lists and numbered steps from across the kitchen — in 25 languages, including Arabic, Urdu and other right-to-left languages.
+  > Dr. Fatma's beloved Egyptian home cooking, on the big screen. Browse more than a thousand family recipes by chapter, search with the on-screen keyboard, and follow clear ingredient lists and numbered steps from across the kitchen — in 30 languages, including Arabic, Urdu and other right-to-left languages.
   >
   > Kids mode turns cooking into a family activity: illustrated recipes, a get-ready checklist, allergen warnings, grown-up alerts, big step cards and a celebration when the dish is done. Recipe videos play full screen, and the Play/Pause and Stop keys on your remote work as you'd expect.
   >
@@ -61,10 +62,10 @@ Seller Office › Applications › **Create App**.
 
 **Arabic (عربي)**
 - Title: `وصفات فيفي`
-- Short: `وصفات د. فاطمة المصرية البيتي بـ٢٤ لغة، ووضع طبخ ممتع للأطفال.`
+- Short: `وصفات د. فاطمة المصرية البيتي بـ٣٠ لغة، ووضع طبخ ممتع للأطفال.`
 - Description:
 
-  > أكلات د. فاطمة المصرية البيتي المحبوبة على شاشة التلفزيون الكبيرة. اتصفح أكتر من ألف وصفة عائلية حسب الأبواب، دوّر بالكيبورد اللي على الشاشة، واتبع المكونات والخطوات المرقمة بوضوح من أي مكان في المطبخ — بـ٢٤ لغة منها العربي والأردو.
+  > أكلات د. فاطمة المصرية البيتي المحبوبة على شاشة التلفزيون الكبيرة. اتصفح أكتر من ألف وصفة عائلية حسب الأبواب، دوّر بالكيبورد اللي على الشاشة، واتبع المكونات والخطوات المرقمة بوضوح من أي مكان في المطبخ — بـ٣٠ لغة منها العربي والأردو.
   >
   > وضع الأطفال بيخلي الطبخ نشاط للعيلة كلها: وصفات مرسومة، قايمة «جهّز نفسك»، تنبيهات الحساسية، تنبيه للخطوات اللي محتاجة حد كبير، كروت خطوات كبيرة، واحتفال لما الأكلة تخلص. فيديوهات الوصفات بتشتغل على الشاشة كلها، وأزرار التشغيل والإيقاف في الريموت شغالة.
   >
