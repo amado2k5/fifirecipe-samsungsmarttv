@@ -59,8 +59,8 @@ export function registerTvKeys() {
 
 /**
  * Leave the app and return to Smart Hub. Samsung's Return-key rule: Back
- * walks up the screen hierarchy and, on the main screen, closes the app
- * (checklist CO-US-05).
+ * walks up the screen hierarchy and, on the main screen, opens an exit
+ * confirmation popup; only its Exit button calls this (ExitDialog.tsx).
  */
 export function exitApp() {
   try {

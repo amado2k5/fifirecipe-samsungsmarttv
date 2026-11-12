@@ -1,4 +1,4 @@
-# Samsung TV Seller Office submission — FiFi Recipes 1.0.3
+# Samsung TV Seller Office submission — FiFi Recipes 1.0.4
 
 Step by step, with every answer. Portal: https://seller.samsungapps.com/tv
 
@@ -16,7 +16,7 @@ Step by step, with every answer. Portal: https://seller.samsungapps.com/tv
 
 ```bash
 npm ci && npm run build
-npm run package            # → build/FifiRecipes-1.0.3.wgt, signed with the "fifi-samsung" profile
+npm run package            # → build/FifiRecipes-1.0.4.wgt, signed with the "fifi-samsung" profile
 ```
 
 Or download the `fifi-recipes-wgt-samsung` artifact from the latest `main`
@@ -32,9 +32,9 @@ Seller Office › Applications › **Create App**.
 |-------|-------|
 | App title (default language English) | **FiFi Recipes** — must match `<name>` in config.xml |
 | Platform / device | Tizen · TV |
-| Package | upload `FifiRecipes-1.0.3.wgt` (Samsung-signed; 1.0.2 was tested on a 2020 QN65Q60T) |
+| Package | upload `FifiRecipes-1.0.4.wgt` (Samsung-signed; 1.0.2 was tested on a 2020 QN65Q60T) |
 | Tizen ID / package ID | `FiFiCookTV.FifiRecipes` / `FiFiCookTV` (from config.xml) |
-| Version | 1.0.3 (bump `package.json` for every upload, beta tests included: Seller Office rejects a version it has already registered) |
+| Version | 1.0.4 (bump `package.json` for every upload, beta tests included: Seller Office rejects a version it has already registered) |
 | Model groups | **2020, 2021, 2022, 2023, 2024, 2025, 2026** (Tizen 5.5+ since 1.0.2; 2019 is phase 2) |
 | Countries | **United States** (Public seller); add others after partnership |
 | Category | Lifestyle (or the closest food/cooking category offered) |
@@ -91,7 +91,9 @@ Explain the remote flow for the certification team:
 
 1. First launch: language picker (arrows + OK). Later launches open Home.
 2. Home: top menu (Home, Chapters, Search, Kids, Settings) and recipe rails;
-   OK opens a recipe; Return goes back; **Return on Home exits to Smart Hub**.
+   OK opens a recipe; Return goes back; **Return on Home opens an exit
+   confirmation popup** (Cancel focused; Exit closes the app to Smart Hub,
+   Cancel or Return dismisses it).
 3. Recipe: scroll with ↑/↓; OK on a video opens the full-screen player;
    Play/Pause, Stop and Return control it.
 4. Search: on-screen keyboard; results appear as you type; "no results"
@@ -106,7 +108,7 @@ Explain the remote flow for the certification team:
 
 Submit → pre-test (package, privileges, config) → QA certification on real
 TVs against the Development Checklist (Common). Typical defects to
-double-check first: Return on Home must exit; Exit must close without a
-popup; network cable pull must show a message and recover; the video must
+double-check first: Return on Home must show the exit confirmation popup
+and terminate only on Exit; the Exit key must close without a popup; network cable pull must show a message and recover; the video must
 pause when you press the Home/Smart Hub key and resume cleanly. Fix, bump
 the version, resubmit. After approval the app publishes on the chosen date.
