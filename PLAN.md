@@ -13,7 +13,7 @@ what remains. Research date: 30 Sep 2026 (sources at the end).
 | Loading | Packaged apps run from `file://`; Chromium refuses ES-module scripts from `file://`. | Build as one classic IIFE bundle loaded with `defer`. |
 | CSS | Tailwind v4 output targets Chrome 111+ (cascade layers, `:is/:where`, logical shorthands). | Post-build PostCSS pass (postcss-preset-env for Chrome 69 + `:where` unwrap + flex-gap/@property fallbacks). Verified in real Chromium 69 and 85. |
 | Remote keys | Arrows, Enter and **Return (10009)** arrive without registration; media/colour keys need `tizen.tvinputdevice.registerKey` + the `tv.inputdevice` privilege. **Exit (10182)** is handled by the system. | Register Play/Pause, Play, Pause and Stop only (undefined keys must stay inert). |
-| Return / Exit policy | Return walks back through screens and, **on the main screen, closes the app** to Smart Hub. Exit must close immediately with no popup. | Return at Home → `tizen.application.getCurrentApplication().exit()`. Exit untouched. |
+| Return / Exit policy | Return walks back through screens and, **on the main screen, opens an exit confirmation popup** built as an HTML element; the app terminates only if the user confirms (Terminating Applications guide — 1.0.2 exited directly and was rejected in review). Exit must close immediately with no popup. | Return at Home → `ExitDialog` (focus on Cancel; Return/Cancel dismiss); its Exit button → `tizen.application.getCurrentApplication().exit()`. Exit untouched. |
 | Pointer | Smart remotes can move a pointer; the UI is focus-driven. | `pointing-device-support="disable"`. |
 | Video | YouTube refuses embeds without an HTTP referrer — a `file://` app has none. | YouTube relay page on `samsungsmarttv.fifi.cooking/player.html`; app talks to it with `postMessage`. |
 | QA checklist | Launch < 30 s; network loss notified and recovered; loading indicators; Return/Exit behaviour; focus reachable everywhere; rapid key presses safe; media pauses in background; no PII after uninstall. | Offline banner + auto-retry, visibility-change pause, key-repeat throttling, no identifiers stored. |
@@ -35,7 +35,7 @@ what remains. Research date: 30 Sep 2026 (sources at the end).
 - **Tests**: `scripts/tv-smoke.mjs` drives the packaged build (`file://`) in
   real **Chromium 69 and 85** with remote keyCodes and a mock `tizen` runtime —
   language picker, Home, recipe, Return, Kids, search keyboard,
-  Return-exits-app, Arabic RTL, layout checks, zero JS errors.
+  exit popup on Return at Home, Arabic RTL, layout checks, zero JS errors.
 - **Packaging**: `npm run package` → signed `build/FifiRecipes-<ver>.wgt`
   (refuses unsigned output); `scripts/tizen-profile.sh` for dev or Samsung
   certificates.

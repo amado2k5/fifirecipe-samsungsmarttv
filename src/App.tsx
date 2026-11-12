@@ -14,6 +14,7 @@ import { exitApp, onConnectivityChange } from './platform';
 import { LANG_STORAGE_KEY, STAGE_HEIGHT, STAGE_WIDTH } from './config';
 import { CrayonFilter } from './components/KidsArt';
 import { ErrorScreen } from './components/ErrorScreen';
+import { ExitDialog } from './components/ExitDialog';
 import { VideoOverlay } from './components/VideoOverlay';
 import { firstKeyForLang } from './components/Keyboard';
 import { SplashScreen } from './screens/SplashScreen';
@@ -88,6 +89,7 @@ export default function App() {
   const [dataLoading, setDataLoading] = useState(false);
   const [stack, setStack] = useState<Screen[]>([{ name: 'home' }]);
   const [video, setVideo] = useState<{ id: string; title: string } | null>(null);
+  const [exitOpen, setExitOpen] = useState(false);
   const focusMemory = useRef<Record<string, string>>({});
   const preVideoFocus = useRef<string>('');
 
@@ -215,15 +217,22 @@ export default function App() {
       if (preVideoFocus.current) setFocus(preVideoFocus.current);
       return;
     }
-    rememberFocus();
-    if (stack.length <= 1) {
-      // At the main screen Return closes the app and shows Smart Hub
-      // (Samsung checklist CO-US-05). No-op in a desktop browser.
-      exitApp();
+    if (exitOpen) {
+      // Return inside the exit popup dismisses it, like Cancel.
+      setExitOpen(false);
       return;
     }
+    if (stack.length <= 1) {
+      // At the main screen Return asks before leaving: the app terminates
+      // only from the popup's Exit button (Samsung Return-key policy).
+      setExitOpen(true);
+      return;
+    }
+    rememberFocus();
     setStack((prev) => prev.slice(0, -1));
-  }, [video, rememberFocus, stack.length]);
+  }, [video, exitOpen, rememberFocus, stack.length]);
+
+  const closeExit = useCallback(() => setExitOpen(false), []);
 
   useEffect(() => installBackHandler(back), [back]);
 
@@ -437,6 +446,7 @@ export default function App() {
           </p>
         </div>
       )}
+      {exitOpen && <ExitDialog s={strings} onExit={exitApp} onCancel={closeExit} />}
       <CrayonFilter />
     </Stage>
   );

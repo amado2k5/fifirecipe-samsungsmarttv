@@ -222,10 +222,39 @@ await sleep(800);
 await shot('06-search');
 await press('back');
 
-// 6. Return on the main screen exits to Smart Hub (checklist CO-US-05).
+// 6. Return on the main screen opens the exit popup; only its Exit button
+// terminates the app (Samsung Return-key policy, "Terminating Applications").
 await waitFor(`!!document.querySelector('[data-focus-key="rk-featured-0"]')`, 'home before exit');
+await waitFor(`!!document.querySelector('.focusable.focused')`, 'home focus before exit');
+const exited = () => evaluate('window.__tv.exited');
+const popupOpen = () => evaluate(`!!document.querySelector('[role="alertdialog"]')`);
+const homeFocus = await focused();
 await press('back');
-if ((await evaluate('window.__tv.exited')) < 1) fail('Return on the main screen did not call tizen.application exit()');
+if (!(await popupOpen())) fail('Return on the main screen did not open the exit popup');
+if ((await exited()) !== 0) fail('Return on the main screen exited without confirmation');
+if ((await focused()) !== 'exit-no') fail(`exit popup focus not on Cancel (at ${await focused()})`);
+await shot('06b-exit-popup');
+// Focus is trapped: arrows never leave the two buttons.
+await press('up', 2);
+await press('down', 2);
+if (!(await focused()).startsWith('exit-')) fail(`focus escaped the exit popup (at ${await focused()})`);
+// Return dismisses like Cancel, without exiting, and restores focus.
+await press('back');
+if (await popupOpen()) fail('Return did not dismiss the exit popup');
+if ((await exited()) !== 0) fail('Return inside the exit popup exited the app');
+if ((await focused()) !== homeFocus) fail(`focus not restored after the exit popup (at ${await focused()}, was ${homeFocus})`);
+// Cancel dismisses without exiting.
+await press('back');
+if ((await focused()) !== 'exit-no') fail(`exit popup focus not on Cancel when reopened (at ${await focused()})`);
+await press('enter');
+if (await popupOpen()) fail('Cancel did not dismiss the exit popup');
+if ((await exited()) !== 0) fail('Cancel exited the app');
+// Exit is the only path to tizen.application exit().
+await press('back');
+for (let i = 0; i < 2 && (await focused()) !== 'exit-yes'; i++) await press('right');
+if ((await focused()) !== 'exit-yes') fail(`could not focus the popup's Exit button (at ${await focused()})`);
+await press('enter');
+if ((await exited()) !== 1) fail(`Exit in the popup called tizen.application exit() ${await exited()} time(s), expected 1`);
 
 // 7. Arabic: right-to-left document.
 await evaluate(`localStorage.setItem('fifi-tv:language', 'ar'); location.reload(); true`);
